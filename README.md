@@ -71,4 +71,4 @@ Giao diện được thiết kế theo phong cách **Premium Minimalist** với:
 Dự án được phát triển cho mục đích quản lý tài chính cá nhân. Mọi hành vi sao chép vui lòng ghi rõ nguồn.
 
 ---
-*Developed with ❤️ by phuongnam*
+*Developed with ❤️ by manhchien*

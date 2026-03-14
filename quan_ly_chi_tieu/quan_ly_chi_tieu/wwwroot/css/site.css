@@ -1,31 +1,68 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
+    /* Light Theme Tokens */
     --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
     --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%);
-    --surface-card: #ffffff;
-    --background-page: #f8fafc;
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
     --text-main: #1e293b;
     --text-muted: #64748b;
     --border-color: #e2e8f0;
+    --navbar-bg: rgba(255, 255, 255, 0.85);
+    --footer-bg: #ffffff;
     --radius-lg: 1rem;
     --radius-md: 0.75rem;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
+[data-bs-theme="dark"] {
+    --bg-page: #0f172a;
+    --bg-card: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --navbar-bg: rgba(15, 23, 42, 0.85);
+    --footer-bg: #1e293b;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+}
+
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: 'Outfit', sans-serif;
-    background-color: var(--background-page);
+    background-color: var(--bg-page);
     color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Fix for overlapping footer */
+.flex-grow-1 {
+    flex: 1 0 auto;
+    padding-bottom: 2rem; /* Add some space before the footer */
+}
+
+footer {
+    flex-shrink: 0;
+    background-color: var(--footer-bg) !important;
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem 0;
+    z-index: 10;
 }
 
 /* Navbar Enhancements */
 .navbar {
-    background: rgba(255, 255, 255, 0.8) !important;
+    background: var(--navbar-bg) !important;
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-color);
     padding: 0.75rem 0;
+    transition: background-color 0.3s ease;
 }
 
 .navbar-brand {
@@ -50,18 +87,13 @@ body {
     color: #6366f1 !important;
 }
 
-.nav-link.active {
-    background: var(--primary-gradient);
-    color: white !important;
-}
-
 /* Card Styling */
 .card {
-    background: var(--surface-card);
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
 }
 
 .card:hover {
@@ -69,50 +101,24 @@ body {
     box-shadow: var(--shadow-md);
 }
 
-.card-header {
-    background: transparent;
-    border-bottom: 1px solid var(--border-color);
-    padding: 1.25rem;
+/* Button & UI Inputs */
+.form-control, .form-select {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-main);
 }
 
-/* Button Refinement */
-.btn {
-    font-weight: 600;
-    border-radius: var(--radius-md);
-    padding: 0.6rem 1.25rem;
-    transition: all 0.2s ease;
+.form-control:focus, .form-select:focus {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25);
 }
 
 .btn-primary {
     background: var(--primary-gradient);
     border: none;
-}
-
-.btn-primary:hover {
-    opacity: 0.9;
-    transform: scale(1.02);
-}
-
-/* Table Styling */
-.table {
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-}
-
-.table thead th {
-    background: #f1f5f9;
-    border-bottom: 1px solid var(--border-color);
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-}
-
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 700;
-    color: var(--text-main);
+    color: white !important;
 }
 
 /* Animations */
@@ -125,30 +131,22 @@ main {
     animation: fadeIn 0.4s ease-out;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
+/* Dark mode toggle icon spin */
+#themeToggler i {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
-::-webkit-scrollbar-track {
-    background: #f1f5f9;
-}
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+[data-bs-theme="dark"] #themeToggler i {
+    transform: rotate(360deg);
 }
 
-/* Glass effect for specific elements */
-.glass-panel {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+/* Dropdown dark mode scaling */
+.dropdown-menu {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
 }
-
-/* Responsive grid padding */
-.container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+.dropdown-item {
+    color: var(--text-main);
+}
+.dropdown-item:hover {
+    background-color: rgba(99, 102, 241, 0.1);
 }
