@@ -26,6 +26,14 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = /mnt/hdd/quanly_chitieu/quan_ly_chi_tieu/quan_ly_chi_tieu
 build_property._RazorSourceGeneratorDebug = 
 
+[/mnt/hdd/quanly_chitieu/quan_ly_chi_tieu/quan_ly_chi_tieu/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/mnt/hdd/quanly_chitieu/quan_ly_chi_tieu/quan_ly_chi_tieu/Views/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9SZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/mnt/hdd/quanly_chitieu/quan_ly_chi_tieu/quan_ly_chi_tieu/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

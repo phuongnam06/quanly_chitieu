@@ -265,3 +265,4 @@
 /mnt/hdd/quanly_chitieu/quan_ly_chi_tieu/quan_ly_chi_tieu/obj/Debug/net8.0/quan_ly_chi_tieu.pdb
 /mnt/hdd/quanly_chitieu/quan_ly_chi_tieu/quan_ly_chi_tieu/obj/Debug/net8.0/quan_ly_chi_tieu.genruntimeconfig.cache
 /mnt/hdd/quanly_chitieu/quan_ly_chi_tieu/quan_ly_chi_tieu/obj/Debug/net8.0/ref/quan_ly_chi_tieu.dll
+/mnt/hdd/quanly_chitieu/quan_ly_chi_tieu/quan_ly_chi_tieu/bin/Debug/net8.0/BCrypt.Net-Next.dll

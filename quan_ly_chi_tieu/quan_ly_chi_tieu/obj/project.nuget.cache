@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "fWWW7KKXUn8=",
+  "dgSpecHash": "npbTuQNmjAA=",
   "success": true,
   "projectFilePath": "/mnt/hdd/quanly_chitieu/quan_ly_chi_tieu/quan_ly_chi_tieu/quan_ly_chi_tieu.csproj",
   "expectedPackageFiles": [
     "/home/phuongnam/.nuget/packages/azure.core/1.35.0/azure.core.1.35.0.nupkg.sha512",
     "/home/phuongnam/.nuget/packages/azure.identity/1.10.3/azure.identity.1.10.3.nupkg.sha512",
+    "/home/phuongnam/.nuget/packages/bcrypt.net-next/4.1.0/bcrypt.net-next.4.1.0.nupkg.sha512",
     "/home/phuongnam/.nuget/packages/entityframework/6.5.1/entityframework.6.5.1.nupkg.sha512",
     "/home/phuongnam/.nuget/packages/humanizer/2.14.1/humanizer.2.14.1.nupkg.sha512",
     "/home/phuongnam/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
