@@ -1,0 +1,61 @@
+@model quan_ly_chi_tieu.Models.ViewModels.WalletViewModel
+@{
+    ViewData["Title"] = "Sửa ví";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-warning text-dark py-3">
+                <h4 class="mb-0">✏️ Sửa thông tin ví</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-bold">Tên ví</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="WalletType" class="form-label fw-bold">Loại ví</label>
+                        <select asp-for="WalletType" class="form-select">
+                            <option value="CASH">💵 Tiền mặt</option>
+                            <option value="BANK">🏦 Tài khoản ngân hàng</option>
+                            <option value="CREDIT">💳 Thẻ tín dụng</option>
+                            <option value="EWALLET">📱 Ví điện tử</option>
+                            <option value="INVESTMENT">📈 Đầu tư</option>
+                        </select>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label asp-for="Icon" class="form-label fw-bold">Biểu tượng</label>
+                            <input asp-for="Icon" class="form-control" />
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="Color" class="form-label fw-bold">Màu sắc</label>
+                            <input asp-for="Color" class="form-control" type="color" />
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" asp-for="IsIncludedInTotal" />
+                        <label class="form-check-label" asp-for="IsIncludedInTotal">Tính vào tổng tài sản</label>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning flex-fill">Cập nhật</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary flex-fill">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

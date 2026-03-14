@@ -1,0 +1,85 @@
+@model quan_ly_chi_tieu.Models.ViewModels.DebtViewModel
+@{
+    ViewData["Title"] = "Thêm khoản nợ/vay";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0 rounded-4">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="mb-0">⚖️ Ghi nhận công nợ mới</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Tôi đang...</label>
+                        <div class="d-flex gap-3">
+                            <div class="flex-fill">
+                                <input type="radio" asp-for="DebtType" value="BORROWED" id="typeBorrowed" class="btn-check" checked />
+                                <label class="btn btn-outline-danger w-100 py-2" for="typeBorrowed">Đi vay (Nợ)</label>
+                            </div>
+                            <div class="flex-fill">
+                                <input type="radio" asp-for="DebtType" value="LENT" id="typeLent" class="btn-check" />
+                                <label class="btn btn-outline-success w-100 py-2" for="typeLent">Cho vay</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CounterpartyName" class="form-label fw-bold">Người vay / Người cho vay</label>
+                        <input asp-for="CounterpartyName" class="form-control" placeholder="Tên người hoặc tổ chức..." />
+                        <span asp-validation-for="CounterpartyName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="InitialAmount" class="form-label fw-bold">Số tiền (đ)</label>
+                        <input asp-for="InitialAmount" class="form-control form-control-lg fw-bold" type="number" step="1000" placeholder="0" />
+                        <span asp-validation-for="InitialAmount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="WalletId" class="form-label fw-bold">Ví nhận/chi tiền</label>
+                        <select asp-for="WalletId" class="form-select">
+                            <option value="">-- Chọn ví --</option>
+                            @if (Model.Wallets != null)
+                            {
+                                @foreach (var w in Model.Wallets)
+                                {
+                                    <option value="@w.Id">@w.Icon @w.Name — @w.CurrentBalance?.ToString("N0") đ</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="WalletId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label asp-for="StartDate" class="form-label fw-bold">Ngày ghi nhận</label>
+                            <input asp-for="StartDate" class="form-control" type="date" />
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="DueDate" class="form-label fw-bold">Ngày đáo hạn</label>
+                            <input asp-for="DueDate" class="form-control" type="date" />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Note" class="form-label fw-bold">Ghi chú</label>
+                        <textarea asp-for="Note" class="form-control" rows="2" placeholder="Thông tin chi tiết (nếu có)..."></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill btn-lg shadow-sm">Lưu thông tin</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

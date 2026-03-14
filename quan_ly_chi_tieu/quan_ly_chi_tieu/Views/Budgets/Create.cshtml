@@ -1,0 +1,81 @@
+@model quan_ly_chi_tieu.Models.ViewModels.BudgetViewModel
+@{
+    ViewData["Title"] = "Thêm ngân sách";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="mb-0">📊 Tạo ngân sách mới</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label fw-bold">Danh mục chi tiêu</label>
+                        <select asp-for="CategoryId" class="form-select">
+                            <option value="">-- Chọn danh mục --</option>
+                            @if (Model.Categories != null)
+                            {
+                                @foreach (var cat in Model.Categories)
+                                {
+                                    <option value="@cat.Id">@cat.Icon @cat.Name</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Amount" class="form-label fw-bold">Hạn mức ngân sách (đ)</label>
+                        <div class="input-group">
+                            <input asp-for="Amount" class="form-control" type="number" min="0" step="10000" placeholder="0" />
+                            <span class="input-group-text">đ</span>
+                        </div>
+                        <span asp-validation-for="Amount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PeriodType" class="form-label fw-bold">Chu kỳ</label>
+                        <select asp-for="PeriodType" class="form-select">
+                            <option value="DAILY">Hàng ngày</option>
+                            <option value="WEEKLY">Hàng tuần</option>
+                            <option value="MONTHLY" selected>Hàng tháng</option>
+                            <option value="YEARLY">Hàng năm</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="AlertThreshold" class="form-label fw-bold">
+                            Ngưỡng cảnh báo: <strong id="thresholdVal">80</strong>%
+                        </label>
+                        <input asp-for="AlertThreshold" type="range" class="form-range" min="50" max="95" step="5"
+                               oninput="document.getElementById('thresholdVal').textContent=this.value" />
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">50%</small>
+                            <small class="text-muted">95%</small>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" asp-for="IsRollover" />
+                        <label class="form-check-label" asp-for="IsRollover">
+                            Tích lũy số dư còn lại sang kỳ sau
+                        </label>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">Tạo ngân sách</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary flex-fill">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

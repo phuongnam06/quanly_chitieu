@@ -1,0 +1,163 @@
+@model IEnumerable<quan_ly_chi_tieu.Models.Transaction>
+@using quan_ly_chi_tieu.Models.ViewModels
+@{
+    ViewData["Title"] = "Lịch sử giao dịch";
+    var filter = ViewBag.Filter as TransactionFilterViewModel ?? new TransactionFilterViewModel();
+    var wallets = ViewBag.Wallets as List<quan_ly_chi_tieu.Models.Wallet> ?? new();
+    var categories = ViewBag.Categories as List<quan_ly_chi_tieu.Models.Category> ?? new();
+    decimal totalIncome = ViewBag.TotalIncome ?? 0m;
+    decimal totalExpense = ViewBag.TotalExpense ?? 0m;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>📒 Lịch sử giao dịch</h2>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" asp-route-type="EXPENSE" class="btn btn-danger">+ Chi tiêu</a>
+        <a asp-action="Create" asp-route-type="INCOME" class="btn btn-success">+ Thu nhập</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-success text-white">
+            <div class="card-body text-center">
+                <h6>💰 Tổng thu</h6>
+                <h3 class="fw-bold">+@totalIncome.ToString("N0") đ</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-danger text-white">
+            <div class="card-body text-center">
+                <h6>💸 Tổng chi</h6>
+                <h3 class="fw-bold">-@totalExpense.ToString("N0") đ</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm @((totalIncome - totalExpense >= 0) ? "bg-primary" : "bg-secondary") text-white">
+            <div class="card-body text-center">
+                <h6>📊 Số dư</h6>
+                <h3 class="fw-bold">@((totalIncome - totalExpense).ToString("N0")) đ</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter -->
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-body">
+        <form asp-action="Index" method="get" class="row g-2 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Từ ngày</label>
+                <input type="date" name="FromDate" class="form-control form-control-sm"
+                       value="@filter.FromDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Đến ngày</label>
+                <input type="date" name="ToDate" class="form-control form-control-sm"
+                       value="@filter.ToDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Loại</label>
+                <select name="Type" class="form-select form-select-sm">
+                    <option value="all" selected="@(filter.Type == null || filter.Type == "all")">Tất cả</option>
+                    <option value="INCOME" selected="@(filter.Type == "INCOME")">Thu nhập</option>
+                    <option value="EXPENSE" selected="@(filter.Type == "EXPENSE")">Chi tiêu</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Ví</label>
+                <select name="WalletId" class="form-select form-select-sm">
+                    <option value="">Tất cả ví</option>
+                    @foreach (var w in wallets)
+                    {
+                        <option value="@w.Id" selected="@(filter.WalletId == w.Id)">@w.Icon @w.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Tìm kiếm</label>
+                <input type="text" name="Keyword" class="form-control form-control-sm"
+                       placeholder="Ghi chú, người..." value="@filter.Keyword" />
+            </div>
+            <div class="col-md-2 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm flex-fill">🔍 Lọc</button>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">✕</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Transactions List -->
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <div style="font-size: 4rem">📭</div>
+        <h4 class="text-muted mt-3">Chưa có giao dịch nào</h4>
+        <p class="text-muted">Bắt đầu ghi nhận thu chi để theo dõi tài chính!</p>
+    </div>
+}
+else
+{
+    @foreach (var group in Model.GroupBy(t => t.TransactionDate.Date).OrderByDescending(g => g.Key))
+    {
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <small class="text-muted fw-bold">📅 @group.Key.ToString("dd/MM/yyyy") (@group.Key.ToString("dddd", new System.Globalization.CultureInfo("vi-VN")))</small>
+                <small class="text-muted">
+                    <span class="text-success">+@group.Where(t => t.Category?.Type == "INCOME").Sum(t => t.Amount).ToString("N0")</span>
+                    &nbsp;
+                    <span class="text-danger">-@group.Where(t => t.Category?.Type == "EXPENSE").Sum(t => t.Amount).ToString("N0")</span>
+                </small>
+            </div>
+            <div class="list-group shadow-sm">
+                @foreach (var t in group.OrderByDescending(x => x.CreatedAt))
+                {
+                    bool isIncome = t.Category?.Type == "INCOME";
+                    <div class="list-group-item d-flex align-items-center gap-3 py-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                             style="width: 44px; height: 44px; background-color: @(t.Category?.Color ?? "#ccc"); flex-shrink: 0;">
+                            <span style="font-size: 1.3rem">@(t.Category?.Icon ?? "💳")</span>
+                        </div>
+                        <div class="flex-fill">
+                            <div class="fw-semibold">
+                                @(t.Category?.Name ?? "Không rõ")
+                                @if (t.Attachments.Any())
+                                {
+                                    <a href="@t.Attachments.First().FileUrl" target="_blank" class="ms-1 text-decoration-none" title="Xem ảnh hóa đơn">📸</a>
+                                }
+                            </div>
+                            <small class="text-muted">
+                                @(t.Wallet?.Icon ?? "") @(t.Wallet?.Name ?? "")
+                                @if (!string.IsNullOrEmpty(t.Note)) { <span> · @t.Note</span> }
+                                @if (!string.IsNullOrEmpty(t.Payee)) { <span> · @t.Payee</span> }
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold fs-5 @(isIncome ? "text-success" : "text-danger")">
+                                @(isIncome ? "+" : "-")@t.Amount.ToString("N0") đ
+                            </div>
+                            <div class="d-flex gap-1 justify-content-end mt-1">
+                                <a asp-action="Edit" asp-route-id="@t.Id" class="btn btn-xs btn-outline-primary" style="font-size: .7rem; padding: 1px 6px;">✏️</a>
+                                <form asp-action="Delete" asp-route-id="@t.Id" method="post" onsubmit="return confirm('Xóa giao dịch này?')">
+                                    @Html.AntiForgeryToken()
+                                    <button class="btn btn-xs btn-outline-danger" style="font-size: .7rem; padding: 1px 6px;" type="submit">🗑️</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}

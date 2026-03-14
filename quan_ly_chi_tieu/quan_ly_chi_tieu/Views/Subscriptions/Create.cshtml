@@ -1,0 +1,99 @@
+@model quan_ly_chi_tieu.Models.ViewModels.SubscriptionViewModel
+@{
+    ViewData["Title"] = "Thêm lịch định kỳ";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0 rounded-4">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="mb-0">📅 Thiết lập thu chi định kỳ</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-bold">Tên giao dịch (VD: Tiền nhà, Spotify, Lương...)</label>
+                        <input asp-for="Name" class="form-control" placeholder="Nhập tên dịch vụ..." />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label asp-for="Amount" class="form-label fw-bold">Số tiền (đ)</label>
+                            <input asp-for="Amount" class="form-control form-control-lg fw-bold" type="number" step="1000" />
+                            <span asp-validation-for="Amount" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Type" class="form-label fw-bold">Loại</label>
+                            <select asp-for="Type" class="form-select form-select-lg">
+                                <option value="EXPENSE">Chi tiêu</option>
+                                <option value="INCOME">Thu nhập</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="CategoryId" class="form-label fw-bold">Danh mục</label>
+                            <select asp-for="CategoryId" class="form-select">
+                                <option value="">-- Chọn danh mục --</option>
+                                @if (Model.Categories != null)
+                                {
+                                    @foreach (var c in Model.Categories.OrderBy(x => x.Type))
+                                    {
+                                        <option value="@c.Id">@c.Icon @c.Name (@(c.Type == "INCOME" ? "Thu" : "Chi"))</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="WalletId" class="form-label fw-bold">Ví mặc định</label>
+                            <select asp-for="WalletId" class="form-select">
+                                <option value="">-- Chọn ví --</option>
+                                @if (Model.Wallets != null)
+                                {
+                                    @foreach (var w in Model.Wallets)
+                                    {
+                                        <option value="@w.Id">@w.Icon @w.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="Frequency" class="form-label fw-bold">Tần suất</label>
+                            <select asp-for="Frequency" class="form-select">
+                                <option value="WEEKLY">Hàng tuần</option>
+                                <option value="MONTHLY" selected>Hàng tháng</option>
+                                <option value="YEARLY">Hàng năm</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="StartDate" class="form-label fw-bold">Ngày bắt đầu</label>
+                            <input asp-for="StartDate" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch mb-4">
+                        <input class="form-check-input" type="checkbox" asp-for="IsAutoInsert" checked>
+                        <label class="form-check-label fw-bold" asp-for="IsAutoInsert">Tự động ghi nhận giao dịch khi đến hạn</label>
+                        <div class="form-text">Hệ thống sẽ tự động trừ/cộng tiền vào ví khi đến ngày này.</div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill btn-lg shadow-sm">Thiết lập lịch</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

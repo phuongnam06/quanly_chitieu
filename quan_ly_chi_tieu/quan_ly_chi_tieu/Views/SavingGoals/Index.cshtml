@@ -1,0 +1,104 @@
+@model IEnumerable<quan_ly_chi_tieu.Models.SavingGoal>
+@{
+    ViewData["Title"] = "Mục tiêu tiết kiệm";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>🎯 Mục tiêu tiết kiệm</h2>
+    <a asp-action="Create" class="btn btn-primary">+ Thêm mục tiêu</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <div style="font-size: 4rem">🏆</div>
+        <h4 class="text-muted mt-3">Chưa có mục tiêu nào</h4>
+        <p class="text-muted">Đặt mục tiêu tài chính để có động lực tiết kiệm!</p>
+        <a asp-action="Create" class="btn btn-primary btn-lg">Tạo mục tiêu</a>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var goal in Model)
+        {
+            var pct = goal.TargetAmount > 0
+                ? Math.Min((double)((goal.CurrentAmount ?? 0) / goal.TargetAmount * 100), 100)
+                : 0;
+            var remaining = goal.TargetAmount - (goal.CurrentAmount ?? 0);
+            bool done = pct >= 100;
+
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid @goal.Color !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <span style="font-size: 2rem">@goal.Icon</span>
+                                <h5 class="d-inline ms-2 fw-bold">@goal.Name</h5>
+                                @if (done)
+                                {
+                                    <span class="badge bg-success ms-2">✅ Hoàn thành!</span>
+                                }
+                            </div>
+                            <form asp-action="Delete" asp-route-id="@goal.Id" method="post" onsubmit="return confirm('Hủy mục tiêu này?')">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-link btn-sm text-danger p-0" type="submit">🗑️</button>
+                            </form>
+                        </div>
+
+                        <div class="progress mb-2" style="height: 16px; border-radius: 8px;">
+                            <div class="progress-bar" role="progressbar"
+                                 style="width: @pct.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)%; background-color: @goal.Color;"
+                                 aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100">
+                                @pct.ToString("0")%
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <div>
+                                <small class="text-muted">Đã tích lũy</small>
+                                <div class="fw-bold text-success">@((goal.CurrentAmount ?? 0).ToString("N0")) đ</div>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">Mục tiêu</small>
+                                <div class="fw-bold">@goal.TargetAmount.ToString("N0") đ</div>
+                            </div>
+                        </div>
+
+                        @if (goal.TargetDate.HasValue)
+                        {
+                            var deadline = goal.TargetDate.Value.ToDateTime(TimeOnly.MinValue);
+                            var daysLeft = (deadline - DateTime.Today).Days;
+                            <div class="mb-3">
+                                <small class="text-muted">⏰ Thời hạn: @goal.TargetDate.Value.ToString("dd/MM/yyyy")
+                                    (@(daysLeft > 0 ? $"còn {daysLeft} ngày" : daysLeft == 0 ? "hôm nay" : $"đã qua {-daysLeft} ngày"))
+                                </small>
+                            </div>
+                        }
+
+                        @if (!done)
+                        {
+                            <form asp-action="Deposit" asp-route-id="@goal.Id" method="post" class="d-flex gap-2">
+                                @Html.AntiForgeryToken()
+                                <div class="input-group">
+                                    <input type="number" name="amount" class="form-control" min="1000" step="10000"
+                                           placeholder="Nạp thêm..." />
+                                    <span class="input-group-text">đ</span>
+                                </div>
+                                <button class="btn btn-outline-success" type="submit">➕</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

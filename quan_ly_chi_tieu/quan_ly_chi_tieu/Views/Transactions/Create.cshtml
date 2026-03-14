@@ -1,0 +1,152 @@
+@model quan_ly_chi_tieu.Models.ViewModels.TransactionViewModel
+@{
+    ViewData["Title"] = Model.Type == "INCOME" ? "Thêm thu nhập" : "Thêm chi tiêu";
+    bool isIncome = Model.Type == "INCOME";
+    var headerColor = isIncome ? "bg-success" : "bg-danger";
+    var typeLabel = isIncome ? "💰 Thu nhập" : "💸 Chi tiêu";
+    var expenseCategories = Model.Categories?.Where(c => c.Type == "EXPENSE").ToList() ?? new();
+    var incomeCategories = Model.Categories?.Where(c => c.Type == "INCOME").ToList() ?? new();
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow border-0">
+            <div class="card-header @headerColor text-white py-3">
+                <h4 class="mb-0">@typeLabel - Thêm mới</h4>
+            </div>
+            <div class="card-body p-4">
+                <!-- Toggle Type -->
+                <div class="d-flex gap-2 mb-4">
+                    <a asp-action="Create" asp-route-type="EXPENSE"
+                       class="btn flex-fill @(!isIncome ? "btn-danger" : "btn-outline-danger")">💸 Chi tiêu</a>
+                    <a asp-action="Create" asp-route-type="INCOME"
+                       class="btn flex-fill @(isIncome ? "btn-success" : "btn-outline-success")">💰 Thu nhập</a>
+                </div>
+
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <input asp-for="Type" type="hidden" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <!-- Amount -->
+                    <div class="mb-3">
+                        <label asp-for="Amount" class="form-label fw-bold">Số tiền (VNĐ)</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text @(isIncome ? "text-success" : "text-danger")">@(isIncome ? "+" : "-")</span>
+                            <input asp-for="Amount" class="form-control form-control-lg fw-bold"
+                                   type="number" min="0" step="1000" placeholder="0" id="amountInput"
+                                   oninput="formatCurrency(this)" />
+                            <span class="input-group-text">đ</span>
+                        </div>
+                        <div id="amountFormatted" class="text-muted small mt-1"></div>
+                        <span asp-validation-for="Amount" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label fw-bold">Danh mục</label>
+                        @if (!isIncome && expenseCategories.Any())
+                        {
+                            <div class="row g-2 mb-2" id="categoryPicker">
+                                @foreach (var cat in expenseCategories.Take(8))
+                                {
+                                    <div class="col-3">
+                                        <div class="border rounded p-2 text-center category-btn"
+                                             data-id="@cat.Id" style="cursor: pointer; background-color: @cat.Color + '20';">
+                                            <div style="font-size: 1.5rem">@cat.Icon</div>
+                                            <small style="font-size: .7rem">@cat.Name</small>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        <select asp-for="CategoryId" class="form-select" id="categorySelect">
+                            <option value="">-- Chọn danh mục --</option>
+                            @if (isIncome)
+                            {
+                                @foreach (var cat in incomeCategories)
+                                {
+                                    <option value="@cat.Id">@cat.Icon @cat.Name</option>
+                                }
+                            }
+                            else
+                            {
+                                @foreach (var cat in expenseCategories)
+                                {
+                                    <option value="@cat.Id">@cat.Icon @cat.Name</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Wallet -->
+                    <div class="mb-3">
+                        <label asp-for="WalletId" class="form-label fw-bold">Ví thanh toán</label>
+                        <select asp-for="WalletId" class="form-select">
+                            <option value="">-- Chọn ví --</option>
+                            @if (Model.Wallets != null)
+                            {
+                                @foreach (var w in Model.Wallets)
+                                {
+                                    <option value="@w.Id">@w.Icon @w.Name — @w.CurrentBalance?.ToString("N0") đ</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="WalletId" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Date & Payee -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="TransactionDate" class="form-label fw-bold">Ngày</label>
+                            <input asp-for="TransactionDate" class="form-control" type="date" />
+                            <span asp-validation-for="TransactionDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Payee" class="form-label fw-bold">@(isIncome ? "Nguồn thu" : "Mua tại / Người nhận")</label>
+                            <input asp-for="Payee" class="form-control" placeholder="Tuỳ chọn" />
+                        </div>
+                    </div>
+
+                    <!-- Note -->
+                    <div class="mb-3">
+                        <label asp-for="Note" class="form-label fw-bold">Ghi chú</label>
+                        <textarea asp-for="Note" class="form-control" rows="2" placeholder="Thêm ghi chú..."></textarea>
+                    </div>
+
+                    <!-- Attachment -->
+                    <div class="mb-4">
+                        <label asp-for="AttachmentFile" class="form-label fw-bold">Ảnh hóa đơn / Chứng từ</label>
+                        <input asp-for="AttachmentFile" class="form-control" type="file" accept="image/*" />
+                        <small class="text-muted">Đính kèm ảnh hóa đơn để dễ dàng kiểm tra lại sau này.</small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn @(isIncome ? "btn-success" : "btn-danger") flex-fill btn-lg">Lưu giao dịch</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function formatCurrency(input) {
+            const val = parseFloat(input.value);
+            if (!isNaN(val)) {
+                document.getElementById('amountFormatted').textContent = val.toLocaleString('vi-VN') + ' đồng';
+            }
+        }
+
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.getElementById('categorySelect').value = this.dataset.id;
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('border-primary', 'border-3'));
+                this.classList.add('border-primary', 'border-3');
+            });
+        });
+    </script>
+}

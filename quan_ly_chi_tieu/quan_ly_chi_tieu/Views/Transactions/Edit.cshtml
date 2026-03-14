@@ -1,0 +1,84 @@
+@model quan_ly_chi_tieu.Models.ViewModels.TransactionViewModel
+@{
+    ViewData["Title"] = "Sửa giao dịch";
+    bool isIncome = Model.Type == "INCOME";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow border-0">
+            <div class="card-header @(isIncome ? "bg-success" : "bg-danger") text-white py-3">
+                <h4 class="mb-0">✏️ Sửa giao dịch</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    <input asp-for="Type" type="hidden" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Amount" class="form-label fw-bold">Số tiền (VNĐ)</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">đ</span>
+                            <input asp-for="Amount" class="form-control form-control-lg fw-bold" type="number" min="0" step="1000" />
+                        </div>
+                        <span asp-validation-for="Amount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label fw-bold">Danh mục</label>
+                        <select asp-for="CategoryId" class="form-select">
+                            <option value="">-- Chọn danh mục --</option>
+                            @if (Model.Categories != null)
+                            {
+                                @foreach (var cat in Model.Categories)
+                                {
+                                    <option value="@cat.Id">@cat.Icon @cat.Name (@(cat.Type == "INCOME" ? "Thu" : "Chi"))</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="WalletId" class="form-label fw-bold">Ví</label>
+                        <select asp-for="WalletId" class="form-select">
+                            <option value="">-- Chọn ví --</option>
+                            @if (Model.Wallets != null)
+                            {
+                                @foreach (var w in Model.Wallets)
+                                {
+                                    <option value="@w.Id">@w.Icon @w.Name — @w.CurrentBalance?.ToString("N0") đ</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="TransactionDate" class="form-label fw-bold">Ngày</label>
+                            <input asp-for="TransactionDate" class="form-control" type="date" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Payee" class="form-label fw-bold">Người / Nguồn</label>
+                            <input asp-for="Payee" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Note" class="form-label fw-bold">Ghi chú</label>
+                        <textarea asp-for="Note" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning flex-fill btn-lg">Cập nhật</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

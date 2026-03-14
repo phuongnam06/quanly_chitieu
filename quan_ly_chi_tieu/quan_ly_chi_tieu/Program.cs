@@ -19,6 +19,43 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.C
 
 var app = builder.Build();
 
+// Seed Database
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    try
+    {
+        if (!context.Currencies.Any(c => c.Code == "VND"))
+        {
+            context.Currencies.Add(new quan_ly_chi_tieu.Models.Currency 
+            { 
+                Code = "VND", 
+                Name = "Việt Nam Đồng", 
+                Symbol = "đ", 
+                ExchangeRateToVnd = 1, 
+                IsActive = true 
+            });
+        }
+        if (!context.Currencies.Any(c => c.Code == "USD"))
+        {
+            context.Currencies.Add(new quan_ly_chi_tieu.Models.Currency 
+            { 
+                Code = "USD", 
+                Name = "US Dollar", 
+                Symbol = "$", 
+                ExchangeRateToVnd = 25000, 
+                IsActive = true 
+            });
+        }
+        context.SaveChanges();
+    }
+    catch (Exception ex)
+    {
+        // Log error or handle as needed
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

@@ -1,0 +1,90 @@
+@model IEnumerable<quan_ly_chi_tieu.Models.ViewModels.BudgetViewModel>
+@{
+    ViewData["Title"] = "Ngân sách";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2>📊 Ngân sách</h2>
+        <small class="text-muted">Tháng: @ViewBag.PeriodLabel</small>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">+ Thêm ngân sách</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <div style="font-size: 4rem">📋</div>
+        <h4 class="text-muted mt-3">Chưa có ngân sách</h4>
+        <p class="text-muted">Đặt hạn mức chi tiêu để kiểm soát tài chính tốt hơn!</p>
+        <a asp-action="Create" class="btn btn-primary btn-lg">Tạo ngân sách đầu tiên</a>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var b in Model.OrderByDescending(x => x.SpentAmount / x.Amount))
+        {
+            var pct = b.Amount > 0 ? Math.Min((double)(b.SpentAmount / b.Amount * 100), 100) : 0;
+            var remaining = b.Amount - b.SpentAmount;
+            string barColor = pct >= 100 ? "bg-danger" : pct >= b.AlertThreshold ? "bg-warning" : "bg-success";
+            string statusBadge = pct >= 100 ? "danger" : pct >= b.AlertThreshold ? "warning" : "success";
+            string statusText = pct >= 100 ? "Vượt ngân sách!" : pct >= b.AlertThreshold ? "Sắp hết!" : "Ổn định";
+
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span style="font-size: 1.5rem">@b.CategoryIcon</span>
+                                <span class="fw-bold ms-1">@b.CategoryName</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-@statusBadge">@statusText</span>
+                                <span class="badge bg-light text-dark">@(b.PeriodType == "MONTHLY" ? "Tháng" : b.PeriodType == "WEEKLY" ? "Tuần" : "Ngày")</span>
+                                <form asp-action="Delete" asp-route-id="@b.Id" method="post" onsubmit="return confirm('Xóa ngân sách này?')">
+                                    @Html.AntiForgeryToken()
+                                    <button class="btn btn-link btn-sm text-danger p-0" type="submit">🗑️</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="progress mb-2" style="height: 12px; border-radius: 6px;">
+                            <div class="progress-bar @barColor" role="progressbar"
+                                 style="width: @pct.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)%"
+                                 aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <small class="text-muted">Đã chi</small>
+                                <div class="fw-bold text-danger">@b.SpentAmount.ToString("N0") đ</div>
+                            </div>
+                            <div class="text-center">
+                                <small class="text-muted">Tỷ lệ</small>
+                                <div class="fw-bold">@pct.ToString("0.0")%</div>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">@(remaining >= 0 ? "Còn lại" : "Vượt")</small>
+                                <div class="fw-bold @(remaining >= 0 ? "text-success" : "text-danger")">
+                                    @Math.Abs(remaining).ToString("N0") đ
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="my-2" />
+                        <small class="text-muted">Hạn mức: <strong>@b.Amount.ToString("N0") đ</strong> · Cảnh báo: @b.AlertThreshold%</small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

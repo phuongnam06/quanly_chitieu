@@ -1,8 +1,261 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Tổng quan tài chính";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<style>
+    .hero-section {
+        padding: 5rem 0;
+        background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+                    radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+    }
+    .hero-emoji {
+        font-size: 8rem;
+        filter: drop-shadow(0 20px 30px rgba(0,0,0,0.1));
+        animation: float 6s ease-in-out infinite;
+    }
+    @@keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    .dashboard-kpi {
+        border: none;
+        overflow: hidden;
+        position: relative;
+    }
+    .dashboard-kpi::after {
+        content: "";
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        top: -50px;
+        right: -50px;
+    }
+</style>
+
+@if (User.Identity?.IsAuthenticated != true)
+{
+    <div class="hero-section min-vh-75 d-flex align-items-center">
+        <div class="row w-100 align-items-center">
+            <div class="col-lg-7 ps-lg-5">
+                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-4 fw-bold">🚀 AI-Powered Finance Tracking</span>
+                <h1 class="display-2 fw-bold mb-4 tracking-tight">
+                    Làm chủ tài chính <br/>
+                    <span style="background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Sống đời tự do.</span>
+                </h1>
+                <p class="lead text-muted mb-5 fs-4 lh-lg">
+                    Hệ thống thông minh giúp bạn theo dõi từng giao dịch, <br class="d-none d-md-block" /> 
+                    lập kế hoạch ngân sách và đạt được mục tiêu tích lũy nhanh hơn bao giờ hết.
+                </p>
+                <div class="d-flex gap-3">
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg px-5 py-3 shadow-lg">Bắt đầu ngay — Miễn phí</a>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-light btn-lg px-5 py-3 border">Đăng nhập</a>
+                </div>
+                <div class="mt-5 d-flex align-items-center gap-4 text-muted small">
+                    <div class="d-flex align-items-center"><i class="bi bi-shield-check fs-4 me-2 text-success"></i> Bảo mật 256-bit</div>
+                    <div class="d-flex align-items-center"><i class="bi bi-cloud-check fs-4 me-2 text-primary"></i> Đồng bộ đám mây</div>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center d-none d-lg-block">
+                <div class="hero-emoji">📊</div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    decimal totalAssets = ViewBag.TotalAssets ?? 0m;
+    decimal monthIncome = ViewBag.MonthIncome ?? 0m;
+    decimal monthExpense = ViewBag.MonthExpense ?? 0m;
+    decimal monthBalance = ViewBag.MonthBalance ?? 0m;
+    var recentTxns = ViewBag.RecentTransactions as List<quan_ly_chi_tieu.Models.Transaction> ?? new();
+    var wallets = ViewBag.Wallets as List<quan_ly_chi_tieu.Models.Wallet> ?? new();
+    var savingGoals = ViewBag.SavingGoals as List<quan_ly_chi_tieu.Models.SavingGoal> ?? new();
+    var budgets = ViewBag.Budgets as List<quan_ly_chi_tieu.Models.Budget> ?? new();
+
+    <div class="py-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-3">
+            <div>
+                <h2 class="fw-bold mb-1 fs-1">Chào buổi tối, @User.Identity.Name! ✨</h2>
+                <p class="text-muted mb-0 fs-5"><i class="bi bi-calendar3 me-2"></i> @DateTime.Now.ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"))</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-controller="Transactions" asp-action="Create" asp-route-type="EXPENSE" class="btn btn-light border btn-lg px-4 shadow-sm text-danger">
+                    <i class="bi bi-dash-circle me-1"></i> Chi tiêu
+                </a>
+                <a asp-controller="Transactions" asp-action="Create" asp-route-type="INCOME" class="btn btn-primary btn-lg px-4 shadow-lg text-white">
+                    <i class="bi bi-plus-circle me-1"></i> Thu nhập
+                </a>
+            </div>
+        </div>
+
+        <!-- KPI Row -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card bg-white h-100 p-4 dashboard-kpi">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                            <i class="bi bi-wallet2 fs-4 text-primary"></i>
+                        </div>
+                        <span class="text-muted fw-bold small text-uppercase tracking-wider">Tổng tài sản</span>
+                    </div>
+                    <h2 class="fw-bold mb-0">@totalAssets.ToString("N0") <small class="fw-normal text-muted fs-6">đ</small></h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-white h-100 p-4 dashboard-kpi">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-2 me-3">
+                            <i class="bi bi-graph-up-arrow fs-4 text-success"></i>
+                        </div>
+                        <span class="text-muted fw-bold small text-uppercase tracking-wider">Thu nhập tháng @DateTime.Now.Month</span>
+                    </div>
+                    <h2 class="fw-bold text-success mb-0">+@monthIncome.ToString("N0") <small class="fw-normal text-muted fs-6">đ</small></h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-white h-100 p-4 dashboard-kpi">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-danger bg-opacity-10 p-2 me-3">
+                            <i class="bi bi-graph-down-arrow fs-4 text-danger"></i>
+                        </div>
+                        <span class="text-muted fw-bold small text-uppercase tracking-wider">Chi tiêu tháng @DateTime.Now.Month</span>
+                    </div>
+                    <h2 class="fw-bold text-danger mb-0">-@monthExpense.ToString("N0") <small class="fw-normal text-muted fs-6">đ</small></h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 p-4 dashboard-kpi border-0 text-white" style="background: var(--primary-gradient)">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-white bg-opacity-20 p-2 me-3">
+                            <i class="bi bi-piggy-bank fs-4"></i>
+                        </div>
+                        <span class="opacity-75 fw-bold small text-uppercase tracking-wider">Số dư khả dụng</span>
+                    </div>
+                    <h2 class="fw-bold mb-0">@monthBalance.ToString("N0") <small class="opacity-75 fw-normal fs-6">đ</small></h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Recent Transactions Table -->
+            <div class="col-xl-8">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden">
+                    <div class="card-header bg-white py-4 px-4 d-flex justify-content-between align-items-center">
+                        <h4 class="fw-bold mb-0">📒 Giao dịch gần đây</h4>
+                        <a asp-controller="Transactions" asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill px-3">Tất cả</a>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (!recentTxns.Any())
+                        {
+                            <div class="text-center py-5">
+                                <div class="fs-1 mb-3">🏜️</div>
+                                <h5 class="text-muted">Chưa có giao dịch nào</h5>
+                                <a asp-controller="Transactions" asp-action="Create" class="btn btn-primary mt-3">Ghi chép giao dịch đầu tiên</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="ps-4">Hạng mục</th>
+                                            <th>Ngày ghi</th>
+                                            <th>Ví</th>
+                                            <th class="text-end pe-4">Số tiền</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="border-top-0">
+                                        @foreach (var t in recentTxns)
+                                        {
+                                            bool isIncome = t.Category?.Type == "INCOME";
+                                            <tr>
+                                                <td class="ps-4 py-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="rounded-4 d-flex align-items-center justify-content-center me-3" 
+                                                             style="width: 42px; height: 42px; background: @(t.Category?.Color ?? "#6366f1")15; color: @(t.Category?.Color ?? "#6366f1"); font-size: 1.25rem;">
+                                                            @t.Category?.Icon
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">@t.Category?.Name</div>
+                                                            <div class="text-muted small">@t.Note</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-muted">@t.TransactionDate.ToString("dd/MM/yyyy")</td>
+                                                <td><span class="badge bg-light text-dark fw-bold border px-3">@t.Wallet?.Name</span></td>
+                                                <td class="text-end pe-4">
+                                                    <div class="fw-bold @(isIncome ? "text-success" : "text-danger") fs-5">
+                                                        @(isIncome ? "+" : "-") @t.Amount.ToString("N0") đ
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side Cards -->
+            <div class="col-xl-4">
+                <!-- Wallets Summary -->
+                <div class="card bg-white border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-4 px-4 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-credit-card-2-back me-2"></i> Ví tiền</h5>
+                        <a asp-controller="Wallets" asp-action="Index" class="small text-decoration-none">Quản lý</a>
+                    </div>
+                    <div class="card-body px-4 pb-4">
+                        @foreach (var w in wallets)
+                        {
+                            <div class="p-3 border rounded-4 mb-3 d-flex justify-content-between align-items-center hover-bg-light transition">
+                                <div class="d-flex align-items-center">
+                                    <span class="fs-3 me-3">@w.Icon</span>
+                                    <div>
+                                        <div class="fw-bold text-dark">@w.Name</div>
+                                        <div class="text-muted small">@w.WalletType</div>
+                                    </div>
+                                </div>
+                                <div class="text-end fw-bold">@w.CurrentBalance?.ToString("N0") <span class="small opacity-50">đ</span></div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Saving Goals Summary -->
+                <div class="card bg-white border-0 shadow-sm">
+                    <div class="card-header bg-white py-4 px-4 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-trophy me-2"></i> Mục tiêu</h5>
+                        <a asp-controller="SavingGoals" asp-action="Index" class="small text-decoration-none">Tất cả</a>
+                    </div>
+                    <div class="card-body px-4 pb-4">
+                        @if (!savingGoals.Any())
+                        {
+                            <div class="text-center py-3">
+                                <p class="text-muted small">Chưa có mục tiêu hành động.</p>
+                                <a asp-controller="SavingGoals" asp-action="Create" class="btn btn-sm btn-link">Thiết lập ngay</a>
+                            </div>
+                        }
+                        @foreach (var g in savingGoals.Take(3))
+                        {
+                            var pct = g.TargetAmount > 0 ? Math.Min((double)((g.CurrentAmount ?? 0) / g.TargetAmount * 100), 100) : 0;
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-bold small">@g.Icon @g.Name</span>
+                                    <span class="text-primary fw-bold small">@pct.ToString("0")%</span>
+                                </div>
+                                <div class="progress" style="height: 10px; border-radius: 20px; background-color: #f1f5f9;">
+                                    <div class="progress-bar rounded-pill" style="width: @pct.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)%; background-color: @(g.Color ?? "#6366f1");"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

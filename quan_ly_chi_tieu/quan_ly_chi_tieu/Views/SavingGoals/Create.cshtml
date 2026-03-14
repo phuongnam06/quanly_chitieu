@@ -1,0 +1,67 @@
+@model quan_ly_chi_tieu.Models.ViewModels.SavingGoalViewModel
+@{
+    ViewData["Title"] = "Thêm mục tiêu tiết kiệm";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header py-3" style="background: linear-gradient(135deg, #9C27B0, #673AB7); color: white;">
+                <h4 class="mb-0">🎯 Tạo mục tiêu tiết kiệm</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-bold">Tên mục tiêu</label>
+                        <input asp-for="Name" class="form-control" placeholder="Ví dụ: Mua xe máy, Quỹ du lịch..." />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TargetAmount" class="form-label fw-bold">Số tiền mục tiêu (đ)</label>
+                        <div class="input-group">
+                            <input asp-for="TargetAmount" class="form-control" type="number" min="0" step="100000" placeholder="0" />
+                            <span class="input-group-text">đ</span>
+                        </div>
+                        <span asp-validation-for="TargetAmount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CurrentAmount" class="form-label fw-bold">Số tiền đã có sẵn (đ)</label>
+                        <div class="input-group">
+                            <input asp-for="CurrentAmount" class="form-control" type="number" min="0" step="10000" placeholder="0" />
+                            <span class="input-group-text">đ</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Deadline" class="form-label fw-bold">Thời hạn (tùy chọn)</label>
+                        <input asp-for="Deadline" class="form-control" type="date" />
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <label asp-for="Icon" class="form-label fw-bold">Biểu tượng</label>
+                            <input asp-for="Icon" class="form-control" placeholder="🎯" />
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="Color" class="form-label fw-bold">Màu sắc</label>
+                            <input asp-for="Color" class="form-control" type="color" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">Tạo mục tiêu</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary flex-fill">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

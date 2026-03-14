@@ -1,0 +1,67 @@
+@model IEnumerable<quan_ly_chi_tieu.Models.Wallet>
+@{
+    ViewData["Title"] = "Quản lý Ví";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><span>💼</span> Quản lý Ví</h2>
+    <a asp-action="Create" class="btn btn-primary">+ Thêm ví mới</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <div style="font-size: 4rem">💳</div>
+        <h4 class="text-muted mt-3">Chưa có ví nào</h4>
+        <p class="text-muted">Hãy tạo ví đầu tiên để bắt đầu theo dõi tài chính!</p>
+        <a asp-action="Create" class="btn btn-primary btn-lg mt-2">Tạo ví ngay</a>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var wallet in Model)
+        {
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 5px solid @wallet.Color !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">@wallet.Icon @wallet.Name</h5>
+                            <span class="badge bg-secondary">@(wallet.WalletType == "CASH" ? "Tiền mặt" : wallet.WalletType == "BANK" ? "Ngân hàng" : wallet.WalletType == "CREDIT" ? "Thẻ tín dụng" : wallet.WalletType)</span>
+                        </div>
+                        <h3 class="text-success fw-bold">@wallet.CurrentBalance?.ToString("N0") đ</h3>
+                        <small class="text-muted">Số dư ban đầu: @wallet.InitialBalance?.ToString("N0") đ</small>
+                        @if (wallet.IsIncludedInTotal == true)
+                        {
+                            <div><span class="badge bg-light text-dark mt-1">✔ Tính vào tổng tài sản</span></div>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent border-0 d-flex gap-2">
+                        <a asp-action="Edit" asp-route-id="@wallet.Id" class="btn btn-sm btn-outline-primary">✏️ Sửa</a>
+                        <form asp-action="Delete" asp-route-id="@wallet.Id" method="post" onsubmit="return confirm('Xóa ví này?')">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Xóa</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="card mt-4 border-0 shadow-sm bg-light">
+        <div class="card-body">
+            <h5>💰 Tổng tài sản</h5>
+            <h2 class="text-primary fw-bold">
+                @Model.Where(w => w.IsIncludedInTotal == true).Sum(w => w.CurrentBalance ?? 0).ToString("N0") đ
+            </h2>
+        </div>
+    </div>
+}
